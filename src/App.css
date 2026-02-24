@@ -1,0 +1,209 @@
+/**
+ * KodNest Premium Build System - App Demo Layout
+ */
+
+/* App Shell */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+/* Demo Sections */
+.demo-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.demo-section h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.demo-section > p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-sm);
+}
+
+/* Color Grid */
+.demo-color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+.demo-color-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-color-swatch__preview {
+  width: 100%;
+  height: 64px;
+  border-radius: var(--radius-md);
+}
+
+.demo-color-swatch__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.demo-color-swatch__token {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.demo-color-swatch__hex {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* Typography Stack */
+.demo-type-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.demo-type-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.demo-type-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.demo-type-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Spacing */
+.demo-spacing-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.demo-spacing-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.demo-spacing-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  width: 24px;
+}
+
+.demo-spacing-bar {
+  height: 24px;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-sm);
+  opacity: 0.15;
+}
+
+.demo-spacing-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  width: 40px;
+}
+
+.demo-spacing-token {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* Inline Row */
+.demo-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Demo Group */
+.demo-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.demo-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.demo-group-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Input Grid */
+.demo-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+/* Card Grid */
+.demo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-sm);
+}
+
+/* Checkbox Stack */
+.demo-checkbox-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Secondary Panel */
+.demo-secondary {
+  position: sticky;
+  top: 80px;
+}
+
+.demo-secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .demo-color-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .demo-input-grid {
+    grid-template-columns: 1fr;
+  }
+}

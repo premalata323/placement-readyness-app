@@ -1,0 +1,22 @@
+/**
+ * KodNest Card Component
+ * Subtle border, no drop shadows, balanced padding
+ */
+
+.kn-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.kn-card--padding-sm {
+  padding: var(--space-sm);
+}
+
+.kn-card--padding-md {
+  padding: var(--space-md);
+}
+
+.kn-card--padding-lg {
+  padding: var(--space-lg);
+}

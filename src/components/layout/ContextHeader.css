@@ -1,0 +1,33 @@
+/**
+ * KodNest ContextHeader Layout Component
+ * Large serif headline, 1-line subtext, clear purpose
+ */
+
+.kn-context-header {
+  padding: var(--space-lg) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.kn-context-header__inner {
+  max-width: var(--max-width-content);
+  margin: 0 auto;
+}
+
+.kn-context-header__headline {
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-xs);
+}
+
+.kn-context-header__subtext {
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  max-width: var(--max-width-text);
+}

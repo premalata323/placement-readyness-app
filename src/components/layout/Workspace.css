@@ -1,0 +1,37 @@
+/**
+ * KodNest Workspace Layout Component
+ * Primary (70%) + Secondary Panel (30%)
+ */
+
+.kn-workspace {
+  flex: 1;
+  padding: var(--space-md);
+}
+
+.kn-workspace__inner {
+  display: flex;
+  gap: var(--space-md);
+  max-width: var(--max-width-content);
+  margin: 0 auto;
+}
+
+.kn-workspace__primary {
+  flex: 7;
+  min-width: 0;
+}
+
+.kn-workspace__secondary {
+  flex: 3;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .kn-workspace__inner {
+    flex-direction: column;
+  }
+
+  .kn-workspace__primary,
+  .kn-workspace__secondary {
+    flex: 1;
+  }
+}

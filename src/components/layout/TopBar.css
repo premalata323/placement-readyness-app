@@ -1,0 +1,56 @@
+/**
+ * KodNest TopBar Layout Component
+ */
+
+.kn-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.kn-topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--max-width-content);
+  margin: 0 auto;
+  padding: var(--space-sm) var(--space-md);
+  height: 56px;
+}
+
+.kn-topbar__left,
+.kn-topbar__center,
+.kn-topbar__right {
+  display: flex;
+  align-items: center;
+}
+
+.kn-topbar__left {
+  flex: 1;
+}
+
+.kn-topbar__center {
+  flex: 1;
+  justify-content: center;
+}
+
+.kn-topbar__right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.kn-topbar__project {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  font-weight: 400;
+}
+
+.kn-topbar__progress {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+}
