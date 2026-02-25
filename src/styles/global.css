@@ -181,3 +181,419 @@ a:hover {
   background-color: var(--color-accent);
   color: var(--color-surface);
 }
+
+/* ========================================
+ * TEST CHECKLIST & SHIPPING LOCK STYLES
+ * ======================================== */
+
+/* Page Layout */
+.page-container {
+  min-height: 100vh;
+  padding: var(--space-lg);
+  background-color: var(--color-background);
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: var(--space-xl);
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-md);
+  color: var(--color-text-primary);
+}
+
+.page-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface-alt);
+}
+
+.card-title {
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.card-content {
+  padding: var(--space-lg);
+}
+
+/* Progress Summary */
+.progress-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.progress-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+}
+
+.progress-count {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.progress-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-container {
+  flex: 1;
+  height: 12px;
+  background-color: var(--color-background);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  min-width: 200px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-medium);
+}
+
+.progress-percentage {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Warning Banner */
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background-color: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
+  color: var(--color-warning-text);
+}
+
+.warning-icon {
+  font-size: var(--text-xl);
+}
+
+.warning-text {
+  font-weight: 500;
+}
+
+/* Test Items */
+.test-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.test-item {
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  transition: all var(--transition-fast);
+}
+
+.test-item:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.test-item-header {
+  margin-bottom: var(--space-sm);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-checkmark {
+  height: 20px;
+  width: 20px;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.checkbox-container:hover .checkbox-checkmark {
+  border-color: var(--color-accent);
+}
+
+.checkbox-input:checked + .checkbox-checkmark {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.checkbox-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox-input:checked + .checkbox-checkmark:after {
+  display: block;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid var(--color-surface);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.test-item-title {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.test-item-description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.test-item-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background-color: var(--color-background);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-accent);
+}
+
+.hint-label {
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-right: var(--space-xs);
+}
+
+.hint-text {
+  font-style: italic;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-border);
+  transform: translateY(-1px);
+}
+
+.btn-disabled {
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-lg {
+  padding: var(--space-lg) var(--space-2xl);
+  font-size: var(--text-lg);
+}
+
+/* Success Card */
+.success-card {
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-surface) 100%);
+  border: 1px solid var(--color-success-border);
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-md);
+}
+
+.success-title {
+  font-size: var(--text-4xl);
+  color: var(--color-success);
+  margin-bottom: var(--space-md);
+}
+
+.success-message {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Progress Display */
+.progress-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(var(--color-accent) 0% 100%, var(--color-border) 100% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progress-circle.completed {
+  background: conic-gradient(var(--color-success) 0% 100%, var(--color-success-bg) 100% 100%);
+}
+
+.progress-circle::before {
+  content: '';
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+}
+
+.progress-text {
+  position: relative;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.progress-label {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-sm);
+}
+
+/* Requirements List */
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requirements-list li {
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.requirements-list li:last-child {
+  border-bottom: none;
+}
+
+/* Text Alignment */
+.text-center {
+  text-align: center;
+}
+
+/* Lock Icon */
+.lock-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-container {
+    padding: var(--space-md);
+  }
+  
+  .progress-summary {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  
+  .progress-bar-container {
+    width: 100%;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}

@@ -9,6 +9,8 @@ import {
   Clock,
   Copy,
   Download,
+  TestTube,
+  Lock,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { AnalysisEntry } from '../lib/analysis-engine';
@@ -153,12 +155,32 @@ export default function ResourcesPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-3 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </button>
+          
+          <div className="flex gap-2">
+            <a 
+              href="/prp/07-test" 
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              <TestTube size={14} />
+              Test Checklist
+            </a>
+            <a 
+              href="/prp/08-ship" 
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              <Lock size={14} />
+              Shipping Status
+            </a>
+          </div>
+        </div>
+        
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
