@@ -1,12 +1,38 @@
 import { useNavigate } from 'react-router-dom';
-import { History, Trash2, ExternalLink, Target } from 'lucide-react';
-import { getHistory, deleteEntry } from '../lib/storage';
-import { useState } from 'react';
+import { History, Trash2, ExternalLink, Target, AlertTriangle } from 'lucide-react';
+import { getHistory, deleteEntry, migrateLegacyEntries } from '../lib/storage';
+import { useState, useEffect } from 'react';
 import type { AnalysisEntry } from '../lib/analysis-engine';
 
 export default function AssessmentsPage() {
   const navigate = useNavigate();
-  const [history, setHistory] = useState<AnalysisEntry[]>(() => getHistory());
+  const [history, setHistory] = useState<AnalysisEntry[]>([]);
+  const [corruptedCount, setCorruptedCount] = useState(0);
+
+  useEffect(() => {
+    // Run migration on component mount
+    migrateLegacyEntries();
+    
+    // Get history and count corrupted entries
+    const allEntries = getHistory();
+    setHistory(allEntries);
+    
+    // In a real implementation, you'd get the corrupted count from storage
+    // For now, we'll simulate this
+    const raw = localStorage.getItem('placement-prep-history');
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const validCount = allEntries.length;
+          const totalCount = parsed.length;
+          setCorruptedCount(totalCount - validCount);
+        }
+      } catch {
+        setCorruptedCount(0);
+      }
+    }
+  }, []);
 
   const handleDelete = (id: string) => {
     deleteEntry(id);
@@ -28,6 +54,23 @@ export default function AssessmentsPage() {
           Your past job description analyses. Click to view full results.
         </p>
       </div>
+
+      {/* Corrupted Entries Warning */}
+      {corruptedCount > 0 && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <div>
+              <p className="text-amber-800 font-medium">
+                {corruptedCount} saved entr{corruptedCount === 1 ? 'y' : 'ies'} couldn't be loaded
+              </p>
+              <p className="text-amber-700 text-sm mt-1">
+                Create a new analysis to continue using the platform.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {history.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -57,7 +100,7 @@ export default function AssessmentsPage() {
                 <div className="flex items-center gap-4">
                   {/* Score circle */}
                   <div className="w-12 h-12 rounded-full bg-primary-50 border border-primary-200 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-bold text-primary">{entry.readinessScore}</span>
+                    <span className="text-sm font-bold text-primary">{entry.finalScore}</span>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">

@@ -61,7 +61,7 @@ export default function ResourcesPage() {
   // Calculate live score based on skill confidence
   useEffect(() => {
     if (entry?.skillConfidenceMap) {
-      const baseScore = entry.readinessScore;
+      const baseScore = entry.baseScore;
       let confidenceAdjustment = 0;
       
       Object.entries(entry.skillConfidenceMap).forEach(([skill, confidence]) => {
@@ -75,12 +75,12 @@ export default function ResourcesPage() {
       const newScore = Math.max(0, Math.min(100, baseScore + confidenceAdjustment));
       setLiveScore(newScore);
       
-      // Update score in localStorage if it changed
-      if (newScore !== entry.readinessScore && entryId) {
+      // Update finalScore in localStorage if it changed
+      if (newScore !== entry.finalScore && entryId) {
         updateReadinessScore(entryId, newScore);
       }
     }
-  }, [entry?.skillConfidenceMap, entry?.readinessScore, entryId]);
+  }, [entry?.skillConfidenceMap, entry?.baseScore, entry?.finalScore, entryId]);
 
   const handleConfidenceChange = (skill: string, confidence: 'know' | 'practice') => {
     if (!entry || !entryId) return;
@@ -179,7 +179,7 @@ export default function ResourcesPage() {
           <div className="flex flex-col items-center bg-primary-50 border border-primary-200 rounded-xl px-6 py-4">
             <span className="text-3xl font-bold text-primary">{liveScore}</span>
             <span className="text-xs text-primary-600 font-medium mt-0.5">Readiness Score</span>
-            {liveScore !== entry.readinessScore && (
+            {liveScore !== entry.baseScore && (
               <span className="text-xs text-gray-500 mt-1">(Live update)</span>
             )}
           </div>

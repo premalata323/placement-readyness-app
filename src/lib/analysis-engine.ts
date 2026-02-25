@@ -14,17 +14,67 @@ export const SKILL_CATEGORIES: Record<string, string[]> = {
   'Testing': ['Selenium', 'Cypress', 'Playwright', 'JUnit', 'PyTest'],
 };
 
+// --------------- Standardized Skill Categories ---------------
+
+export const STANDARDIZED_SKILL_CATEGORIES = {
+  CORE_CS: 'coreCS',
+  LANGUAGES: 'languages',
+  WEB: 'web',
+  DATA: 'data',
+  CLOUD: 'cloud',
+  TESTING: 'testing',
+  OTHER: 'other'
+} as const;
+
+export const SKILL_CATEGORY_MAPPING: Record<string, string> = {
+  'Core CS': STANDARDIZED_SKILL_CATEGORIES.CORE_CS,
+  'Languages': STANDARDIZED_SKILL_CATEGORIES.LANGUAGES,
+  'Web': STANDARDIZED_SKILL_CATEGORIES.WEB,
+  'Data': STANDARDIZED_SKILL_CATEGORIES.DATA,
+  'Cloud/DevOps': STANDARDIZED_SKILL_CATEGORIES.CLOUD,
+  'Testing': STANDARDIZED_SKILL_CATEGORIES.TESTING
+};
+
+export interface StandardizedExtractedSkills {
+  coreCS: string[];
+  languages: string[];
+  web: string[];
+  data: string[];
+  cloud: string[];
+  testing: string[];
+  other: string[];
+}
+
+export const DEFAULT_SKILLS: StandardizedExtractedSkills = {
+  coreCS: [],
+  languages: ['Basic coding'],
+  web: [],
+  data: [],
+  cloud: [],
+  testing: [],
+  other: ['Communication', 'Problem solving', 'Projects']
+};
+
 export interface ExtractedSkills {
   [category: string]: string[];
 }
 
 /**
  * Extract skills from JD text using case-insensitive keyword matching.
+ * Returns standardized skill structure with all 7 categories.
  * Uses word-boundary detection to avoid partial matches.
  */
-export function extractSkills(jdText: string): ExtractedSkills {
+export function extractSkills(jdText: string): StandardizedExtractedSkills {
   const text = jdText.toLowerCase();
-  const result: ExtractedSkills = {};
+  const result: StandardizedExtractedSkills = {
+    coreCS: [],
+    languages: [],
+    web: [],
+    data: [],
+    cloud: [],
+    testing: [],
+    other: []
+  };
 
   for (const [category, keywords] of Object.entries(SKILL_CATEGORIES)) {
     const matched: string[] = [];
@@ -37,28 +87,37 @@ export function extractSkills(jdText: string): ExtractedSkills {
         matched.push(keyword);
       }
     }
+    
+    // Map to standardized category
+    const standardizedCategory = SKILL_CATEGORY_MAPPING[category] || STANDARDIZED_SKILL_CATEGORIES.OTHER;
     if (matched.length > 0) {
-      result[category] = matched;
+      (result as any)[standardizedCategory] = matched;
     }
+  }
+
+  // If no skills detected, use default skills
+  const hasSkills = Object.values(result).flat().length > 0;
+  if (!hasSkills) {
+    return { ...DEFAULT_SKILLS };
   }
 
   return result;
 }
 
-export function hasAnySkills(skills: ExtractedSkills): boolean {
-  return Object.keys(skills).length > 0;
+export function hasAnySkills(skills: StandardizedExtractedSkills): boolean {
+  return Object.values(skills).flat().length > 0;
 }
 
 // --------------- Readiness Score ---------------
 
 export function computeReadinessScore(
-  skills: ExtractedSkills,
+  skills: StandardizedExtractedSkills,
   company: string,
   role: string,
   jdText: string,
 ): number {
   let score = 35;
-  const categoriesPresent = Object.keys(skills).length;
+  const categoriesPresent = Object.keys(skills).filter(cat => skills[cat as keyof StandardizedExtractedSkills].length > 0).length;
   score += Math.min(categoriesPresent * 5, 30);
   if (company.trim().length > 0) score += 10;
   if (role.trim().length > 0) score += 10;
@@ -74,10 +133,10 @@ export interface ChecklistRound {
   items: string[];
 }
 
-export function generateChecklist(skills: ExtractedSkills): ChecklistRound[] {
+export function generateChecklist(skills: StandardizedExtractedSkills): ChecklistRound[] {
   const allSkills = Object.values(skills).flat();
   const has = (k: string) => allSkills.some((s) => s.toLowerCase() === k.toLowerCase());
-  const hasCategory = (c: string) => !!skills[c];
+  const hasCategory = (c: string) => (skills as any)[c] && (skills as any)[c].length > 0;
 
   const round1: string[] = [
     'Practice quantitative aptitude (percentages, probability, permutations)',
@@ -86,7 +145,7 @@ export function generateChecklist(skills: ExtractedSkills): ChecklistRound[] {
     'Practice time management for aptitude rounds',
     'Solve 2 full-length aptitude mock tests',
   ];
-  if (hasCategory('Core CS')) {
+  if (hasCategory('coreCS')) {
     round1.push('Revise OS basics: process scheduling, deadlocks, memory management');
     round1.push('Revise DBMS: normalization, ACID properties, SQL queries');
     round1.push('Review networking fundamentals: TCP/IP, HTTP, DNS');
@@ -112,29 +171,29 @@ export function generateChecklist(skills: ExtractedSkills): ChecklistRound[] {
     'Be ready to discuss tech choices and alternatives',
     'Practice live coding with clear communication',
   ];
-  if (hasCategory('Web')) {
+  if (hasCategory('web')) {
     round3.push('Review frontend concepts: virtual DOM, state management, component lifecycle');
     if (has('React')) round3.push('Prepare React-specific: hooks, context, performance optimization');
     if (has('Node.js')) round3.push('Review Node.js event loop, middleware patterns, error handling');
     if (has('REST') || has('GraphQL')) round3.push('Explain REST vs GraphQL trade-offs with examples');
   }
-  if (hasCategory('Data')) {
+  if (hasCategory('data')) {
     round3.push('Review database design: indexing, query optimization, joins');
     if (has('SQL')) round3.push('Practice writing complex SQL queries (joins, subqueries, window functions)');
     if (has('MongoDB')) round3.push('Explain MongoDB schema design and aggregation pipeline');
   }
-  if (hasCategory('Cloud/DevOps')) {
+  if (hasCategory('cloud')) {
     round3.push('Explain your deployment pipeline and CI/CD setup');
     if (has('Docker')) round3.push('Be ready to explain Docker containers vs VMs, Dockerfile basics');
     if (has('AWS') || has('Azure') || has('GCP')) round3.push('Know core cloud services you have used and why');
   }
-  if (hasCategory('Languages')) {
-    const langs = skills['Languages'] || [];
+  if (hasCategory('languages')) {
+    const langs = (skills as any)['languages'] || [];
     if (langs.length > 0) {
       round3.push(`Deep-dive into ${langs.join(', ')}: language-specific idioms and best practices`);
     }
   }
-  if (hasCategory('Testing')) {
+  if (hasCategory('testing')) {
     round3.push('Explain your testing strategy: unit, integration, e2e');
   }
 
@@ -164,8 +223,8 @@ export interface DayPlan {
   tasks: string[];
 }
 
-export function generatePlan(skills: ExtractedSkills): DayPlan[] {
-  const hasCategory = (c: string) => !!skills[c];
+export function generatePlan(skills: StandardizedExtractedSkills): DayPlan[] {
+  const hasCategory = (c: string) => (skills as any)[c] && (skills as any)[c].length > 0;
   const has = (k: string) => Object.values(skills).flat().some((s) => s.toLowerCase() === k.toLowerCase());
 
   const day1: string[] = [
@@ -173,7 +232,7 @@ export function generatePlan(skills: ExtractedSkills): DayPlan[] {
     'Practice 20 aptitude questions',
     'Review basic data types and control structures',
   ];
-  if (hasCategory('Core CS')) {
+  if (hasCategory('coreCS')) {
     day1.push('Revise OS: process management, threading, scheduling');
     day1.push('Review DBMS: ER diagrams, normalization, keys');
   }
@@ -183,9 +242,11 @@ export function generatePlan(skills: ExtractedSkills): DayPlan[] {
     'Practice logical reasoning (seating, puzzles, blood relations)',
     'Review OOP concepts: abstraction, encapsulation, polymorphism',
   ];
-  if (hasCategory('Languages')) {
-    const langs = (skills['Languages'] || []).slice(0, 2);
-    day2.push(`Brush up on ${langs.join(' and ')} syntax and standard library`);
+  if (hasCategory('languages')) {
+    const langs = (skills as any)['languages'] || [];
+    if (langs.length > 0) {
+      day2.push(`Brush up on ${langs.slice(0, 2).join(' and ')} syntax and standard library`);
+    }
   }
 
   const day3: string[] = [
@@ -217,7 +278,7 @@ export function generatePlan(skills: ExtractedSkills): DayPlan[] {
   if (has('Node.js')) {
     day5.push('Revise Node.js: event loop, streams, middleware patterns');
   }
-  if (hasCategory('Cloud/DevOps')) {
+  if (hasCategory('cloud')) {
     day5.push('Review your deployment setup and explain it clearly');
   }
 
@@ -226,7 +287,7 @@ export function generatePlan(skills: ExtractedSkills): DayPlan[] {
     'Practice behavioral questions (STAR format)',
     'Prepare "Why this company?" and "Why this role?" answers',
   ];
-  if (hasCategory('Testing')) {
+  if (hasCategory('testing')) {
     day6.push('Review testing concepts: unit vs integration vs e2e');
   }
   if (has('Docker') || has('Kubernetes')) {
@@ -364,7 +425,7 @@ const GENERIC_QUESTIONS = [
   'What is your approach to learning a new technology?',
 ];
 
-export function generateQuestions(skills: ExtractedSkills): string[] {
+export function generateQuestions(skills: StandardizedExtractedSkills): string[] {
   const allSkills = Object.values(skills).flat();
   const questions: string[] = [];
 
@@ -399,17 +460,19 @@ export interface AnalysisEntry {
   company: string;
   role: string;
   jdText: string;
-  extractedSkills: ExtractedSkills;
+  extractedSkills: StandardizedExtractedSkills;
   plan: DayPlan[];
   checklist: ChecklistRound[];
   questions: string[];
-  readinessScore: number;
-  skillConfidenceMap?: Record<string, 'know' | 'practice'>;
+  baseScore: number;
+  finalScore: number;
+  skillConfidenceMap: Record<string, 'know' | 'practice'>;
+  updatedAt: string;
 }
 
 export function runAnalysis(company: string, role: string, jdText: string): AnalysisEntry {
   const extractedSkills = extractSkills(jdText);
-  const readinessScore = computeReadinessScore(extractedSkills, company, role, jdText);
+  const baseScore = computeReadinessScore(extractedSkills, company, role, jdText);
   const checklist = generateChecklist(extractedSkills);
   const plan = generatePlan(extractedSkills);
   const questions = generateQuestions(extractedSkills);
@@ -420,17 +483,21 @@ export function runAnalysis(company: string, role: string, jdText: string): Anal
     skillConfidenceMap[skill] = 'practice';
   });
 
+  const timestamp = new Date().toISOString();
+
   return {
     id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-    company,
-    role,
+    createdAt: timestamp,
+    company: company || '',
+    role: role || '',
     jdText,
     extractedSkills,
     plan,
     checklist,
     questions,
-    readinessScore,
+    baseScore,
+    finalScore: baseScore,
     skillConfidenceMap,
+    updatedAt: timestamp,
   };
 }
