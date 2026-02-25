@@ -35,3 +35,25 @@ export function deleteEntry(id: string): void {
   const history = getHistory().filter((e) => e.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
+
+export function updateSkillConfidence(entryId: string, skill: string, confidence: 'know' | 'practice'): void {
+  const history = getHistory();
+  const entryIndex = history.findIndex(e => e.id === entryId);
+  if (entryIndex !== -1) {
+    const entry = history[entryIndex];
+    if (!entry.skillConfidenceMap) {
+      entry.skillConfidenceMap = {};
+    }
+    entry.skillConfidenceMap[skill] = confidence;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+}
+
+export function updateReadinessScore(entryId: string, newScore: number): void {
+  const history = getHistory();
+  const entryIndex = history.findIndex(e => e.id === entryId);
+  if (entryIndex !== -1) {
+    history[entryIndex].readinessScore = newScore;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+}

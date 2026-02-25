@@ -404,6 +404,7 @@ export interface AnalysisEntry {
   checklist: ChecklistRound[];
   questions: string[];
   readinessScore: number;
+  skillConfidenceMap?: Record<string, 'know' | 'practice'>;
 }
 
 export function runAnalysis(company: string, role: string, jdText: string): AnalysisEntry {
@@ -412,6 +413,12 @@ export function runAnalysis(company: string, role: string, jdText: string): Anal
   const checklist = generateChecklist(extractedSkills);
   const plan = generatePlan(extractedSkills);
   const questions = generateQuestions(extractedSkills);
+  
+  // Initialize all skills to 'practice' by default
+  const skillConfidenceMap: Record<string, 'know' | 'practice'> = {};
+  Object.values(extractedSkills).flat().forEach(skill => {
+    skillConfidenceMap[skill] = 'practice';
+  });
 
   return {
     id: crypto.randomUUID(),
@@ -424,5 +431,6 @@ export function runAnalysis(company: string, role: string, jdText: string): Anal
     checklist,
     questions,
     readinessScore,
+    skillConfidenceMap,
   };
 }

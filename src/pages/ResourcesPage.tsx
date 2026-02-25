@@ -7,19 +7,127 @@ import {
   Tag,
   ArrowLeft,
   Clock,
+  Copy,
+  Download,
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import type { AnalysisEntry } from '../lib/analysis-engine';
 import { hasAnySkills } from '../lib/analysis-engine';
-import { getEntryById, getLatestEntry } from '../lib/storage';
+import { getEntryById, getLatestEntry, updateSkillConfidence, updateReadinessScore } from '../lib/storage';
+import SkillToggle from '../components/dashboard/SkillToggle';
+import ActionNext from '../components/dashboard/ActionNext';
+import { 
+  copyToClipboard, 
+  generatePlanText, 
+  generateChecklistText, 
+  generateQuestionsText, 
+  generateCompleteReport,
+  downloadTextAsFile
+} from '../lib/export-utils';
 
 export default function ResourcesPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const entryId = (location.state as { entryId?: string } | null)?.entryId;
 
-  const entry: AnalysisEntry | undefined = entryId
-    ? getEntryById(entryId)
-    : getLatestEntry();
+  const [entry, setEntry] = useState<AnalysisEntry | undefined>(() => 
+    entryId ? getEntryById(entryId) : getLatestEntry()
+  );
+  const [liveScore, setLiveScore] = useState<number>(entry?.readinessScore || 0);
+  const [copyStatus, setCopyStatus] = useState<string>('');
+
+  // Get weak skills (practice-marked)
+  const getWeakSkills = (): string[] => {
+    if (!entry?.skillConfidenceMap) return [];
+    return Object.entries(entry.skillConfidenceMap)
+      .filter(([_, confidence]) => confidence === 'practice')
+      .map(([skill, _]) => skill);
+  };
+
+  const weakSkills = getWeakSkills();
+
+  // Initialize skill confidence map if it doesn't exist
+  useEffect(() => {
+    if (entry && !entry.skillConfidenceMap) {
+      const updatedEntry = { ...entry };
+      updatedEntry.skillConfidenceMap = {};
+      Object.values(entry.extractedSkills).flat().forEach(skill => {
+        updatedEntry.skillConfidenceMap![skill] = 'practice';
+      });
+      setEntry(updatedEntry);
+    }
+  }, [entry]);
+
+  // Calculate live score based on skill confidence
+  useEffect(() => {
+    if (entry?.skillConfidenceMap) {
+      const baseScore = entry.readinessScore;
+      let confidenceAdjustment = 0;
+      
+      Object.entries(entry.skillConfidenceMap).forEach(([skill, confidence]) => {
+        if (confidence === 'know') {
+          confidenceAdjustment += 2;
+        } else {
+          confidenceAdjustment -= 2;
+        }
+      });
+      
+      const newScore = Math.max(0, Math.min(100, baseScore + confidenceAdjustment));
+      setLiveScore(newScore);
+      
+      // Update score in localStorage if it changed
+      if (newScore !== entry.readinessScore && entryId) {
+        updateReadinessScore(entryId, newScore);
+      }
+    }
+  }, [entry?.skillConfidenceMap, entry?.readinessScore, entryId]);
+
+  const handleConfidenceChange = (skill: string, confidence: 'know' | 'practice') => {
+    if (!entry || !entryId) return;
+    
+    // Update local state
+    const updatedEntry = { ...entry };
+    if (!updatedEntry.skillConfidenceMap) {
+      updatedEntry.skillConfidenceMap = {};
+    }
+    updatedEntry.skillConfidenceMap[skill] = confidence;
+    setEntry(updatedEntry);
+    
+    // Update in localStorage
+    updateSkillConfidence(entryId, skill, confidence);
+  };
+
+  // Export functions
+  const copyPlan = async () => {
+    if (!entry) return;
+    const planText = generatePlanText(entry.plan);
+    const success = await copyToClipboard(planText);
+    setCopyStatus(success ? 'Plan copied to clipboard!' : 'Failed to copy plan');
+    setTimeout(() => setCopyStatus(''), 3000);
+  };
+
+  const copyChecklist = async () => {
+    if (!entry) return;
+    const checklistText = generateChecklistText(entry.checklist);
+    const success = await copyToClipboard(checklistText);
+    setCopyStatus(success ? 'Checklist copied to clipboard!' : 'Failed to copy checklist');
+    setTimeout(() => setCopyStatus(''), 3000);
+  };
+
+  const copyQuestions = async () => {
+    if (!entry) return;
+    const questionsText = generateQuestionsText(entry.questions);
+    const success = await copyToClipboard(questionsText);
+    setCopyStatus(success ? 'Questions copied to clipboard!' : 'Failed to copy questions');
+    setTimeout(() => setCopyStatus(''), 3000);
+  };
+
+  const downloadReport = () => {
+    if (!entry) return;
+    const reportText = generateCompleteReport(entry);
+    const filename = `placement-readiness-${entry.company || 'analysis'}-${new Date().toISOString().split('T')[0]}.txt`;
+    downloadTextAsFile(reportText, filename);
+  };
 
   if (!entry) {
     return (
@@ -67,16 +175,19 @@ export default function ResourcesPage() {
               })}
             </p>
           </div>
-          {/* Readiness Score Badge */}
+          {/* Live Readiness Score Badge */}
           <div className="flex flex-col items-center bg-primary-50 border border-primary-200 rounded-xl px-6 py-4">
-            <span className="text-3xl font-bold text-primary">{entry.readinessScore}</span>
+            <span className="text-3xl font-bold text-primary">{liveScore}</span>
             <span className="text-xs text-primary-600 font-medium mt-0.5">Readiness Score</span>
+            {liveScore !== entry.readinessScore && (
+              <span className="text-xs text-gray-500 mt-1">(Live update)</span>
+            )}
           </div>
         </div>
       </div>
 
       <div className="space-y-8">
-        {/* A) Extracted Skills */}
+        {/* A) Extracted Skills with Interactive Toggles */}
         <section className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-4">
             <Tag className="w-5 h-5 text-primary" />
@@ -89,14 +200,18 @@ export default function ResourcesPage() {
                   <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {category}
                   </span>
-                  <div className="flex flex-wrap gap-2 mt-1">
+                  <div className="flex flex-wrap gap-2 mt-3">
                     {skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-md border border-primary-100"
-                      >
-                        {skill}
-                      </span>
+                      <div key={skill} className="flex flex-col items-start gap-1">
+                        <span className="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-md border border-primary-100">
+                          {skill}
+                        </span>
+                        <SkillToggle
+                          skill={skill}
+                          initialConfidence={entry.skillConfidenceMap?.[skill] || 'practice'}
+                          onConfidenceChange={handleConfidenceChange}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -141,8 +256,12 @@ export default function ResourcesPage() {
             7-Day Preparation Plan
           </h3>
           <div className="space-y-5">
-            {entry.plan.map((day) => (
-              <div key={day.day} className="border-l-2 border-primary-200 pl-4">
+            {entry.plan.map((day, index) => (
+              <div 
+                key={day.day} 
+                className="border-l-2 border-primary-200 pl-4"
+                id={index === 0 ? 'day-1-plan' : undefined}
+              >
                 <h4 className="text-sm font-semibold text-gray-900">
                   {day.day} — {day.label}
                 </h4>
@@ -176,6 +295,66 @@ export default function ResourcesPage() {
             ))}
           </ol>
         </section>
+
+        {/* Export Tools */}
+        <section className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-4">
+            <Download className="w-5 h-5 text-primary" />
+            Export Tools
+          </h3>
+          
+          {copyStatus && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+              {copyStatus}
+            </div>
+          )}
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button
+              onClick={copyPlan}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-50 text-primary hover:bg-primary-100 rounded-lg transition-colors text-sm font-medium"
+            >
+              <Copy className="w-4 h-4" />
+              Copy 7-day Plan
+            </button>
+            
+            <button
+              onClick={copyChecklist}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-50 text-primary hover:bg-primary-100 rounded-lg transition-colors text-sm font-medium"
+            >
+              <Copy className="w-4 h-4" />
+              Copy Checklist
+            </button>
+            
+            <button
+              onClick={copyQuestions}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-50 text-primary hover:bg-primary-100 rounded-lg transition-colors text-sm font-medium"
+            >
+              <Copy className="w-4 h-4" />
+              Copy Questions
+            </button>
+            
+            <button
+              onClick={downloadReport}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white hover:bg-primary-dark rounded-lg transition-colors text-sm font-medium"
+            >
+              <Download className="w-4 h-4" />
+              Download Report
+            </button>
+          </div>
+        </section>
+
+        {/* Action Next Box */}
+        <ActionNext 
+          weakSkills={weakSkills}
+          onStartDay1={() => {
+            // Scroll to Day 1 plan section
+            const day1Element = document.getElementById('day-1-plan');
+            if (day1Element) {
+              day1Element.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+        />
       </div>
     </div>
   );
