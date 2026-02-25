@@ -1,8 +1,104 @@
+import { useNavigate } from 'react-router-dom';
+import { History, Trash2, ExternalLink, Target } from 'lucide-react';
+import { getHistory, deleteEntry } from '../lib/storage';
+import { useState } from 'react';
+import type { AnalysisEntry } from '../lib/analysis-engine';
+
 export default function AssessmentsPage() {
+  const navigate = useNavigate();
+  const [history, setHistory] = useState<AnalysisEntry[]>(() => getHistory());
+
+  const handleDelete = (id: string) => {
+    deleteEntry(id);
+    setHistory(getHistory());
+  };
+
+  const handleOpen = (id: string) => {
+    navigate('/dashboard/resources', { state: { entryId: id } });
+  };
+
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900">Assessments</h2>
-      <p className="mt-2 text-gray-500">Take timed assessments to evaluate your readiness.</p>
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <History className="w-6 h-6 text-primary" />
+          Analysis History
+        </h2>
+        <p className="mt-1 text-gray-500">
+          Your past job description analyses. Click to view full results.
+        </p>
+      </div>
+
+      {history.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Target className="w-12 h-12 text-gray-300 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No History Yet</h3>
+          <p className="text-gray-500 mb-6 max-w-md">
+            Analyze a job description to see your history here. All entries persist across refreshes.
+          </p>
+          <button
+            onClick={() => navigate('/dashboard/practice')}
+            className="px-5 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors cursor-pointer"
+          >
+            Analyze a Job Description
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3 max-w-3xl">
+          {history.map((entry) => (
+            <div
+              key={entry.id}
+              className="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between hover:border-primary-200 transition-colors"
+            >
+              <button
+                onClick={() => handleOpen(entry.id)}
+                className="flex-1 text-left cursor-pointer bg-transparent border-none p-0"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Score circle */}
+                  <div className="w-12 h-12 rounded-full bg-primary-50 border border-primary-200 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-primary">{entry.readinessScore}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {entry.company || 'Unknown Company'}
+                      {entry.role ? ` — ${entry.role}` : ''}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {new Date(entry.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                      {' '}
+                      &middot;{' '}
+                      {Object.values(entry.extractedSkills).flat().length} skills detected
+                    </p>
+                  </div>
+                </div>
+              </button>
+              <div className="flex items-center gap-2 ml-4">
+                <button
+                  onClick={() => handleOpen(entry.id)}
+                  className="p-2 text-gray-400 hover:text-primary rounded-lg hover:bg-primary-50 transition-colors cursor-pointer"
+                  title="View results"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(entry.id)}
+                  className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                  title="Delete entry"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

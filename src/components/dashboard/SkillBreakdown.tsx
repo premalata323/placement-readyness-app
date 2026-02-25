@@ -6,16 +6,22 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from 'recharts';
-
-const data = [
-  { subject: 'DSA', score: 75 },
-  { subject: 'System Design', score: 60 },
-  { subject: 'Communication', score: 80 },
-  { subject: 'Resume', score: 85 },
-  { subject: 'Aptitude', score: 70 },
-];
+import { getLatestEntry } from '../../lib/storage';
+import { SKILL_CATEGORIES } from '../../lib/analysis-engine';
 
 export default function SkillBreakdown() {
+  const latest = getLatestEntry();
+
+  // Compute category coverage as percentage
+  const data = Object.entries(SKILL_CATEGORIES).map(([category, keywords]) => {
+    const matched = latest?.extractedSkills[category]?.length ?? 0;
+    const total = keywords.length;
+    return {
+      subject: category,
+      score: total > 0 ? Math.round((matched / total) * 100) : 0,
+    };
+  });
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-8">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Skill Breakdown</h3>
@@ -41,6 +47,9 @@ export default function SkillBreakdown() {
           />
         </RadarChart>
       </ResponsiveContainer>
+      {!latest && (
+        <p className="text-xs text-gray-400 text-center mt-2">Analyze a JD to see skill coverage</p>
+      )}
     </div>
   );
 }

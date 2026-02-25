@@ -1,10 +1,14 @@
+import { getLatestEntry } from '../../lib/storage';
+
 const radius = 80;
 const circumference = 2 * Math.PI * radius;
-const score = 72;
-const progress = (score / 100) * circumference;
-const offset = circumference - progress;
 
 export default function OverallReadiness() {
+  const latest = getLatestEntry();
+  const score = latest?.readinessScore ?? 0;
+  const progress = (score / 100) * circumference;
+  const offset = circumference - progress;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center">
       <h3 className="text-lg font-semibold text-gray-900 mb-6">Overall Readiness</h3>
@@ -36,6 +40,9 @@ export default function OverallReadiness() {
           <span className="text-sm text-gray-500 mt-1">Readiness Score</span>
         </div>
       </div>
+      {!latest && (
+        <p className="mt-4 text-xs text-gray-400">Analyze a JD to see your score</p>
+      )}
     </div>
   );
 }

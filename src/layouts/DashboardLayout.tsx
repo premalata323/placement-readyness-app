@@ -1,17 +1,17 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard,
-  BookOpen,
-  ClipboardCheck,
-  FolderOpen,
+  Search,
+  History,
+  FileText,
   User,
 } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/dashboard/practice', label: 'Practice', icon: BookOpen },
-  { to: '/dashboard/assessments', label: 'Assessments', icon: ClipboardCheck },
-  { to: '/dashboard/resources', label: 'Resources', icon: FolderOpen },
+  { to: '/dashboard/practice', label: 'Analyze JD', icon: Search },
+  { to: '/dashboard/assessments', label: 'History', icon: History },
+  { to: '/dashboard/resources', label: 'Results', icon: FileText },
   { to: '/dashboard/profile', label: 'Profile', icon: User },
 ];
 
